@@ -1,0 +1,262 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tienda B-P Sanitarios</title>
+  <style>
+    :root{--rojo:#d92525;--negro:#111;--claro:#f5f5f5}
+    *{box-sizing:border-box; transition: all 0.2s ease;}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--claro);color:#111}
+    
+    header{background:var(--negro);color:#fff;padding:18px 20px;position:sticky;top:0;z-index:10}
+    .topbar{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-badge{width:42px;height:42px;border-radius:10px;background:var(--rojo);display:grid;place-items:center;color:#fff;font-weight:bold;font-size:20px}
+    .brand h1{margin:0;font-size:28px;color:#fff}.brand p{margin:4px 0 0;color:#ddd;font-size:14px}
+    
+    .cart-summary{background:var(--rojo);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer}
+    .layout{max-width:1400px;margin:22px auto;padding:0 16px 24px;display:grid;grid-template-columns:1fr 360px;gap:25px;align-items:start}
+    
+    .panel{background:#fff;border-radius:16px;border:1px solid #ddd;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.07)}
+    .panel-header{background:var(--negro);color:#fff;padding:16px 18px;font-size:22px;font-weight:bold}
+    .panel-body{padding:20px}
+    
+    .filters{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:20px}
+    .search-input,.qty-input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;font-size:15px;outline:none;background:#fff}
+    
+    .tabs{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+    .tab{background:#2b2b2b;color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:bold;cursor:pointer}
+    .tab.active{background:var(--rojo)}
+
+    /* CONFIGURACIÓN DE 3 POR FILA */
+    .products-grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr; /* Exactamente 3 columnas */
+      gap:20px;
+    }
+    
+    .product-card{
+      background:var(--negro);
+      color:#fff;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid #333;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .product-image{
+      height:160px;
+      background:linear-gradient(135deg,#2d2d2d,#0f0f0f);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:40px;
+    }
+
+    /* Padding mejorado para que el botón no toque los bordes */
+    .product-content{
+      padding:22px; 
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      flex:1;
+    }
+
+    .product-brand{color:#ffb3b3;font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+    .product-name{font-size:20px;font-weight:bold;min-height:50px;line-height:1.2}
+    .product-spec{color:#bbb;font-size:14px;min-height:36px}
+    .product-price{font-size:24px;font-weight:bold; color: #fff; margin: 8px 0;}
+    .stock{color:#888;font-size:13px; margin-bottom: 5px;}
+
+    .card-actions{
+      display:grid;
+      grid-template-columns:70px 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .add-btn{
+      background:var(--rojo);
+      color:#fff;
+      border:none;
+      border-radius:10px;
+      padding:12px;
+      font-weight:bold;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .add-btn:hover{background:#b31d1d;}
+
+    /* CARRITO */
+    .cart-side{position:sticky;top:92px}
+    .cart-list{display:flex;flex-direction:column;gap:12px;max-height:430px;overflow:auto;padding-right:4px}
+    .cart-item{border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff}
+    .cart-item-top{display:flex;justify-content:space-between;gap:12px;margin-bottom:8px}
+    .cart-name{font-weight:bold}.cart-brand{color:#666;font-size:13px}.cart-price{color:var(--rojo);font-weight:bold}
+    
+    .cart-total{margin-top:14px;padding-top:14px;border-top:2px solid #eee;display:flex;justify-content:space-between;font-size:20px;font-weight:bold}
+    .primary-btn{background:var(--rojo);color:#fff; border:none; border-radius:12px; padding:15px; font-weight:bold; cursor:pointer; width:100%}
+    .secondary-btn{background:#efefef;color:#111; border:none; border-radius:10px; padding:10px; cursor:pointer}
+
+    /* Responsivo para tablets y celulares */
+    @media (max-width:1200px){ .products-grid{grid-template-columns: 1fr 1fr;} .layout{grid-template-columns:1fr} }
+    @media (max-width:768px){ .products-grid{grid-template-columns: 1fr;} }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">B</div>
+        <div><h1>B-P Sanitarios</h1><p>Tienda Profesional</p></div>
+      </div>
+      <button class="cart-summary" onclick="scrollAlCarrito()">🛒 <span id="resumenCarrito">0 productos - $0,00</span></button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-header">Productos</div>
+      <div class="panel-body">
+        <div class="filters">
+          <input id="busqueda" class="search-input" type="text" placeholder="Buscar productos..." oninput="renderProductos()" />
+          <select id="orden" class="search-input" onchange="renderProductos()">
+            <option value="nombre">Nombre</option>
+            <option value="precio-asc">Menor precio</option>
+            <option value="precio-desc">Mayor precio</option>
+          </select>
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <div class="products-grid" id="productosGrid"></div>
+      </div>
+    </section>
+
+    <aside class="panel cart-side" id="panelCarrito">
+      <div class="panel-header">Carrito</div>
+      <div class="panel-body">
+        <div id="cartList" class="cart-list"></div>
+        <div id="cartEmpty" style="text-align:center; padding:20px; color:#888;">Tu carrito está vacío.</div>
+        <div class="cart-total"><span>Total</span><span id="totalGeneral">$0,00</span></div>
+        <div style="display:grid; gap:10px; margin-top:16px">
+          <button class="primary-btn" onclick="irAComprar()">Ir a comprar</button>
+          <button class="secondary-btn" onclick="vaciarCarrito()">Vaciar carrito</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const productos=[
+      {id:1, marca:"Duke", nombre:"Codo 90°", precio:1200, stock:40, descripcion:"Conexión sanitaria reforzada", emoji:"┐"},
+      {id:2, marca:"Duke", nombre:"Curva larga", precio:1800, stock:18, descripcion:"Ideal para desagües", emoji:"◜"},
+      {id:3, marca:"TF3", nombre:"Teflón", precio:850, stock:75, descripcion:"Sellado para roscas", emoji:"◎"},
+      {id:4, marca:"TF3", nombre:"Llave esférica", precio:9200, stock:14, descripcion:"Paso total metálico", emoji:"⬤"},
+      {id:5, marca:"Bonomini", nombre:"Sifón flexible", precio:6400, stock:12, descripcion:"Flexible extensible", emoji:"∿"},
+      {id:6, marca:"Bonomini", nombre:"Válvula click clack", precio:11000, stock:9, descripcion:"Terminación cromada", emoji:"◉"},
+      {id:7, marca:"Dealer", nombre:"Descarga mochila", precio:13500, stock:11, descripcion:"Mecanismo completo", emoji:"⬇"},
+      {id:8, marca:"Dealer", nombre:"Flotante universal", precio:7800, stock:20, descripcion:"Fácil instalación", emoji:"◍"},
+      {id:9, marca:"Otros", nombre:"Pegamento PVC", precio:4200, stock:16, descripcion:"Secado rápido", emoji:"▣"},
+      {id:10, marca:"Otros", nombre:"Caño corto", precio:3900, stock:28, descripcion:"Tramo sanitario 40 mm", emoji:"║"},
+      {id:11, marca:"Duke", nombre:"Reducción", precio:2100, stock:25, descripcion:"Distintas medidas", emoji:"⬒"},
+      {id:12, marca:"Dealer", nombre:"Válvula de descarga", precio:15600, stock:8, descripcion:"Alto caudal", emoji:"⬍"}
+    ];
+    const marcas=["Todas","Duke","TF3","Bonomini","Dealer","Otros"];
+    let marcaActual="Todas";
+    let carrito=JSON.parse(localStorage.getItem("bp_carrito")||"[]");
+
+    function dinero(v){return "$"+Number(v).toLocaleString("es-AR",{minimumFractionDigits:2});}
+    function guardarCarrito(){localStorage.setItem("bp_carrito",JSON.stringify(carrito));}
+    
+    function renderTabs(){
+      const tabs=document.getElementById("tabs"); tabs.innerHTML="";
+      marcas.forEach(marca=>{
+        const btn=document.createElement("button");
+        btn.className="tab"+(marca===marcaActual?" active":"");
+        btn.textContent=marca;
+        btn.onclick=function(){marcaActual=marca;renderTabs();renderProductos();};
+        tabs.appendChild(btn);
+      });
+    }
+
+    function renderProductos(){
+      const grid=document.getElementById("productosGrid");
+      const q=document.getElementById("busqueda").value.toLowerCase();
+      const orden=document.getElementById("orden").value;
+      
+      let lista=productos.filter(p=>{
+        const coincideMarca=marcaActual==="Todas"||p.marca===marcaActual;
+        return coincideMarca && (p.nombre+p.marca+p.descripcion).toLowerCase().includes(q);
+      });
+
+      if(orden==="precio-asc") lista.sort((a,b)=>a.precio-b.precio);
+      else if(orden==="precio-desc") lista.sort((a,b)=>b.precio-a.precio);
+      else lista.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+
+      grid.innerHTML="";
+      lista.forEach(prod=>{
+        const card=document.createElement("div");
+        card.className="product-card";
+        card.innerHTML=`
+          <div class="product-image">${prod.emoji}</div>
+          <div class="product-content">
+            <div class="product-brand">${prod.marca}</div>
+            <div class="product-name">${prod.nombre}</div>
+            <div class="product-spec">${prod.descripcion}</div>
+            <div class="product-price">${dinero(prod.precio)}</div>
+            <div class="stock">Stock: ${prod.stock}</div>
+            <div class="card-actions">
+              <input id="qty-${prod.id}" class="qty-input" type="number" min="1" value="1" />
+              <button class="add-btn" onclick="agregarAlCarrito(${prod.id})">Agregar</button>
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function agregarAlCarrito(id){
+      const producto=productos.find(p=>p.id===id);
+      const input=document.getElementById("qty-"+id);
+      const cantidad=parseInt(input.value,10);
+      const yaEnCarrito=carrito.find(item=>item.id===id);
+      const total= (yaEnCarrito ? yaEnCarrito.cantidad : 0) + cantidad;
+      if(total > producto.stock) return alert("Sin stock");
+      if(yaEnCarrito) yaEnCarrito.cantidad += cantidad;
+      else carrito.push({...producto, cantidad: cantidad});
+      guardarCarrito(); renderCarrito();
+    }
+
+    function renderCarrito(){
+      const list=document.getElementById("cartList");
+      const totalEl=document.getElementById("totalGeneral");
+      const resumen=document.getElementById("resumenCarrito");
+      list.innerHTML="";
+      let total=0; let cant=0;
+      carrito.forEach((item,index)=>{
+        total += item.precio * item.cantidad;
+        cant += item.cantidad;
+        const div=document.createElement("div");
+        div.className="cart-item";
+        div.innerHTML=`
+          <div class="cart-item-top">
+            <div><div class="cart-name">${item.nombre}</div></div>
+            <div class="cart-price">${dinero(item.precio*item.cantidad)}</div>
+          </div>
+          <button class="secondary-btn" style="padding:4px 8px; font-size:12px" onclick="eliminar(${index})">Quitar</button>`;
+        list.appendChild(div);
+      });
+      totalEl.textContent=dinero(total);
+      resumen.textContent=cant+" prod. - "+dinero(total);
+      document.getElementById("cartEmpty").style.display = carrito.length ? "none" : "block";
+    }
+
+    function eliminar(i){carrito.splice(i,1); guardarCarrito(); renderCarrito();}
+    function vaciarCarrito(){carrito=[]; guardarCarrito(); renderCarrito();}
+    function scrollAlCarrito(){document.getElementById("panelCarrito").scrollIntoView({behavior:"smooth"});}
+    function irAComprar(){if(carrito.length) window.location.href="checkout_bp_sanitarios.html";}
+
+    renderTabs(); renderProductos(); renderCarrito();
+  </script>
+</body>
+</html>

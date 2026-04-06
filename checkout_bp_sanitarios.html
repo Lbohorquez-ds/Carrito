@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finalizar compra - B-P Sanitarios</title>
+  <style>
+    :root{--rojo:#d92525;--negro:#111;--claro:#f5f5f5}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:var(--claro);color:#111}
+    header{background:var(--negro);color:#fff;padding:18px 20px}
+    .topbar{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand-badge{width:42px;height:42px;border-radius:10px;background:var(--rojo);display:grid;place-items:center;color:#fff;font-weight:bold;font-size:20px}
+    .brand h1{margin:0;font-size:28px;color:#fff}.brand p{margin:4px 0 0;color:#ddd;font-size:14px}
+    .back-btn{background:#fff;color:#111;border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer}
+    .layout{max-width:1200px;margin:22px auto;padding:0 16px 24px;display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+    .panel{background:#fff;border-radius:16px;border:1px solid #ddd;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.07)}
+    .panel-header{background:var(--negro);color:#fff;padding:16px 18px;font-size:22px;font-weight:bold}
+    .panel-body{padding:16px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    input,textarea,button{font-family:inherit}
+    .field,.field-full{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;font-size:15px;outline:none;background:#fff}
+    .field-full{grid-column:1/-1}
+    .help{color:#666;font-size:13px;margin-top:4px}
+    .payment-box{background:#fafafa;border:1px solid #ddd;border-radius:12px;padding:14px;margin-top:16px}
+    .payment-options{display:grid;gap:10px;margin-top:10px}
+    .radio-line{display:flex;gap:10px;align-items:flex-start;border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff}
+    .resume-box{display:grid;gap:12px}
+    .resume-item{border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff}
+    .resume-top{display:flex;justify-content:space-between;gap:12px}
+    .resume-name{font-weight:bold}.resume-brand{color:#666;font-size:13px;margin-top:4px}.resume-price{color:var(--rojo);font-weight:bold;white-space:nowrap}
+    .total-box{margin-top:10px;padding-top:12px;border-top:2px solid #eee;display:flex;justify-content:space-between;font-size:22px;font-weight:bold}
+    .status-box{display:none;margin-top:16px;background:#f8f8f8;border:1px solid #ddd;border-radius:14px;padding:16px}
+    .status-badge{display:inline-block;background:#fff3cd;color:#856404;border:1px solid #ffe69c;padding:6px 10px;border-radius:999px;font-weight:bold;margin-bottom:10px}
+    .status-title{font-size:20px;font-weight:bold;margin:0 0 10px}
+    .status-text{color:#333;line-height:1.55}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .primary-btn,.secondary-btn{border:none;border-radius:10px;padding:12px 16px;font-weight:bold;cursor:pointer}
+    .primary-btn{background:var(--rojo);color:#fff}.secondary-btn{background:#efefef;color:#111}
+    .msg{margin-top:12px;font-weight:bold;min-height:20px}.msg.error{color:#c62828}.msg.ok{color:#0c7c33}
+    .empty{text-align:center;color:#777;padding:26px 10px;border:1px dashed #ccc;border-radius:12px;background:#fafafa}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}.grid-2{grid-template-columns:1fr}}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">B</div>
+        <div><h1>B-P Sanitarios</h1><p>Finalizar compra</p></div>
+      </div>
+      <button class="back-btn" onclick="volver(event)">← Volver al carrito</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-header">Datos de la empresa</div>
+      <div class="panel-body">
+        <div class="grid-2">
+          <div><input id="empresaNombre" class="field" type="text" placeholder="Nombre o razón social *" /><div class="help">Obligatorio</div></div>
+          <div><input id="empresaCuit" class="field" type="text" placeholder="CUIT *" /><div class="help">Obligatorio</div></div>
+          <div><input id="empresaDireccion" class="field" type="text" placeholder="Dirección *" /><div class="help">Obligatorio</div></div>
+          <div><input id="empresaTelefono" class="field" type="text" placeholder="Teléfono *" /><div class="help">Obligatorio</div></div>
+          <div><input id="empresaEmail" class="field" type="email" placeholder="Mail *" /><div class="help">Obligatorio</div></div>
+          <div><input id="empresaContacto" class="field" type="text" placeholder="Nombre de contacto *" /><div class="help">Obligatorio</div></div>
+          <textarea id="observaciones" class="field-full" rows="4" placeholder="Observaciones del pedido (opcional)"></textarea>
+        </div>
+
+        <div class="payment-box">
+          <strong>Forma de pago</strong>
+          <div class="payment-options">
+            <label class="radio-line">
+              <input type="radio" name="pago" value="CBU" checked />
+              <span><strong>Transferencia / CBU</strong><br>Alias: <strong>BP.SANITARIOS</strong><br>CBU: <strong>0000003100000001234567</strong></span>
+            </label>
+            <label class="radio-line">
+              <input type="radio" name="pago" value="ARREGLAR" />
+              <span><strong>Arreglar con el vendedor</strong><br>Nos comunicaremos para coordinar pago y entrega.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="primary-btn" onclick="confirmarPedido()">Confirmar pedido</button>
+          <button class="secondary-btn" onclick="volver(event)">Volver</button>
+        </div>
+
+        <div id="mensaje" class="msg"></div>
+
+        <div id="estadoPedido" class="status-box">
+          <div class="status-badge">En proceso</div>
+          <p class="status-title">Pedido recibido correctamente</p>
+          <div id="estadoTexto" class="status-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-header">Resumen del pedido</div>
+      <div class="panel-body">
+        <div id="listaResumen" class="resume-box"></div>
+        <div id="carritoVacio" class="empty" style="display:none;">No hay productos en el carrito.</div>
+        <div class="total-box"><span>Total general</span><span id="totalGeneral">$0,00</span></div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const EMAILJS_PUBLIC_KEY = "TU_PUBLIC_KEY";
+    const EMAILJS_SERVICE_ID = "TU_SERVICE_ID";
+    const EMAILJS_TEMPLATE_ID = "TU_TEMPLATE_ID";
+
+    let carrito = JSON.parse(localStorage.getItem("bp_carrito") || "[]");
+
+    if (window.emailjs) {
+      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+
+    function dinero(v) {
+      return "$" + Number(v).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function mostrarMensaje(texto, tipo) {
+      const el = document.getElementById("mensaje");
+      el.textContent = texto;
+      el.className = "msg " + (tipo || "ok");
+
+      setTimeout(() => {
+        el.textContent = "";
+        el.className = "msg";
+      }, 3200);
+    }
+
+    // --- FUNCIÓN CORREGIDA ---
+    function volver(e) {
+      if (e) e.preventDefault(); // Detiene cualquier acción por defecto
+      window.location.assign("index.html"); // .assign es más directo que .href para redirecciones simples
+    }
+
+    function renderResumen() {
+      const lista = document.getElementById("listaResumen");
+      const totalEl = document.getElementById("totalGeneral");
+      const vacio = document.getElementById("carritoVacio");
+
+      lista.innerHTML = "";
+
+      if (carrito.length === 0) {
+        vacio.style.display = "block";
+        totalEl.textContent = "$0,00";
+        return;
+      }
+
+      vacio.style.display = "none";
+      let total = 0;
+
+      carrito.forEach(item => {
+        const subtotal = item.precio * item.cantidad;
+        total += subtotal;
+
+        const div = document.createElement("div");
+        div.className = "resume-item";
+        div.innerHTML = `
+          <div class="resume-top">
+            <div>
+              <div class="resume-name">${item.nombre}</div>
+              <div class="resume-brand">${item.marca}</div>
+            </div>
+            <div class="resume-price">${dinero(subtotal)}</div>
+          </div>
+          <div style="margin-top:8px;color:#555;font-size:14px;">
+            ${item.cantidad} x ${dinero(item.precio)}
+          </div>
+        `;
+
+        lista.appendChild(div);
+      });
+
+      totalEl.textContent = dinero(total);
+    }
+
+    function datosObligatorios() {
+      return {
+        nombre: document.getElementById("empresaNombre").value.trim(),
+        cuit: document.getElementById("empresaCuit").value.trim(),
+        direccion: document.getElementById("empresaDireccion").value.trim(),
+        telefono: document.getElementById("empresaTelefono").value.trim(),
+        email: document.getElementById("empresaEmail").value.trim(),
+        contacto: document.getElementById("empresaContacto").value.trim(),
+        observaciones: document.getElementById("observaciones").value.trim(),
+        pago: document.querySelector('input[name="pago"]:checked').value
+      };
+    }
+
+    function generarDetallePedido() {
+      return carrito.map(item =>
+        `- ${item.nombre} (${item.marca}) | Cant: ${item.cantidad} | Unit: ${dinero(item.precio)} | Total: ${dinero(item.precio * item.cantidad)}`
+      ).join("\n");
+    }
+
+    function generarTextoPedido(datos) {
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      const detalle = generarDetallePedido();
+
+      return `Nuevo pedido B-P Sanitarios
+
+Empresa: ${datos.nombre}
+CUIT: ${datos.cuit}
+Dirección: ${datos.direccion}
+Teléfono: ${datos.telefono}
+Mail: ${datos.email}
+Contacto: ${datos.contacto}
+Forma de pago: ${datos.pago === "CBU" ? "Transferencia / CBU" : "Arreglar con el vendedor"}
+
+Productos:
+${detalle}
+
+Total general: ${dinero(total)}
+
+Observaciones:
+${datos.observaciones || "-"}
+
+Nos comunicaremos con vos en las próximas 24 hs.`;
+    }
+
+    function mostrarEstadoPedido(datos) {
+      const estadoBox = document.getElementById("estadoPedido");
+      const estadoTexto = document.getElementById("estadoTexto");
+      const formaPago = datos.pago === "CBU"
+        ? `Tu pedido quedó registrado. Recordá que la forma de pago seleccionada es <strong>Transferencia / CBU</strong>.`
+        : `Tu pedido quedó registrado. Elegiste <strong>Arreglar con el vendedor</strong> y lo coordinaremos por contacto directo.`;
+
+      estadoTexto.innerHTML = `${formaPago}<br><br>Ya enviamos automáticamente una copia del pedido a <strong>bpsanitarios@gmail.com</strong> y a <strong>${datos.email}</strong>.<br><br><strong>Nos comunicaremos con vos en las próximas 24 hs.</strong>`;
+      estadoBox.style.display = "block";
+    }
+
+    async function confirmarPedido() {
+      if (carrito.length === 0) {
+        mostrarMensaje("El carrito está vacío.", "error");
+        return;
+      }
+
+      const datos = datosObligatorios();
+
+      if (!datos.nombre || !datos.cuit || !datos.direccion || !datos.telefono || !datos.email || !datos.contacto) {
+        mostrarMensaje("Completá todos los datos obligatorios.", "error");
+        return;
+      }
+
+      if (!window.emailjs) {
+        mostrarMensaje("No se pudo cargar el servicio de mail.", "error");
+        return;
+      }
+
+      const total = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+      const detalle = generarDetallePedido();
+      const textoPedido = generarTextoPedido(datos);
+
+      const templateParams = {
+        to_email: "bpsanitarios@gmail.com," + datos.email,
+        reply_to: datos.email,
+        empresa: datos.nombre,
+        cuit: datos.cuit,
+        direccion: datos.direccion,
+        telefono: datos.telefono,
+        cliente_email: datos.email,
+        contacto: datos.contacto,
+        pago: datos.pago === "CBU" ? "Transferencia / CBU" : "Arreglar con el vendedor",
+        productos: detalle,
+        total: dinero(total),
+        observaciones: datos.observaciones || "-",
+        mensaje_completo: textoPedido
+      };
+
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+
+        mostrarMensaje("Pedido enviado correctamente.", "ok");
+        mostrarEstadoPedido(datos);
+
+        localStorage.removeItem("bp_carrito");
+        carrito = [];
+        renderResumen();
+      } catch (error) {
+        console.error(error);
+        mostrarMensaje("Error enviando el pedido. Revisá la configuración de EmailJS.", "error");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      renderResumen();
+    });
+  </script>
+</body>
+</html>
